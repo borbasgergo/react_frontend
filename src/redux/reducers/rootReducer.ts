@@ -1,4 +1,4 @@
-import { CHANGE_THEME } from "../../types/ActionTypes"
+import { CHANGE_THEME } from "../ActionTypes"
 import { RootAction, rootStateI } from "../../types/types"
 
 const rootState: rootStateI = {

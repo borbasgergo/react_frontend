@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { authContext } from '../context/authContext';
-import { addTodo } from '../helpers/APIFunctions';
+import { addTodo } from '../redux/actions/todo';
 
 
 
@@ -20,16 +20,8 @@ export const AddTodoForm: React.FC = () => {
     const submitAddTodoForm = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
 
-        addTodo( jwt!, {do: task}).then(result => {
-            if(!result.error){
-                dispatch({
-                    type: "ADD_TODO",
-                    payload: result.todo
-                })
-            }
-        })
-        .finally( () => setTask(""))
-        
+        dispatch(addTodo( jwt!, {do: task}))
+        setTask("")       
     }
 
     return (

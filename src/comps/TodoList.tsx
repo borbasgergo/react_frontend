@@ -1,8 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { authContext } from "../context/authContext";
-import { deleteTodo, getTodos } from "../helpers/APIFunctions";
-import { appStateI, todo } from "../types/types";
+import { DeleteUser } from "../redux/actionCreators/user";
+import { deleteTodo, getTodos } from "../redux/actions/todo";
+import { appStateI, todoStateI } from "../types/types";
 
 import { AddTodoForm } from "./addTodoForm";
 
@@ -16,22 +17,15 @@ export const TodoList: React.FC<todoProps> = ({ title }) => {
 
   const dispatch = useDispatch();
 
-  const todos = useSelector<appStateI, todo[]>((state) => state.todoState.todo);
-
-  const [ loading, setLoading ] = useState<boolean>(true)
+  const todos = useSelector<appStateI, todoStateI>((state) => state.todoState);
 
   useEffect( () => {
 
-    getTodos(jwt!).then(result => {
-      if(!result.error && result.todos){
-        dispatch({ type: "SET_TODO", payload: result.todos })
-      }
-    })
-    .finally( () => setLoading(false))
+    dispatch(getTodos(jwt!))
 
-  }, [dispatch, jwt])
+  }, [jwt, dispatch])
 
-  if(loading){
+  if(todos.loading){
     return (
       <div>
         loading.
@@ -40,19 +34,19 @@ export const TodoList: React.FC<todoProps> = ({ title }) => {
   }
   return (
     <div className='container'>
-
+      <header>
+        <button onClick={ () => dispatch(DeleteUser())}>
+          LOG OUT
+        </button>
+      </header>
       {title}
 
-      {todos.map((todo) => (
+      {todos.todo.map((todo) => (
         <div key={todo.id} className='draggable' draggable={true}>
           {todo.do}
           <div>
             <button
-              onClick={() => {
-                deleteTodo( jwt!, todo.id).then(result => {
-                  if( !result.error ) dispatch({ type: "DELETE_TODO", payload: { id: todo.id } })
-                })
-              }}
+              onClick={ () => dispatch(deleteTodo( jwt!, todo.id)) }
             >
               delete
             </button>

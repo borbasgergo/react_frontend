@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { authContext } from '../../context/authContext';
-import { findUser } from '../../helpers/APIFunctions';
+import { findUser } from '../../redux/actions/user';
 import { appStateI, authStateI } from '../../types/types';
 
 export const AuthContextProvider: React.FC = ( { children} ) => {
@@ -10,35 +10,17 @@ export const AuthContextProvider: React.FC = ( { children} ) => {
 
     const auth = useSelector<appStateI, authStateI>( (state) => state.authState)
 
-    const [ loading, setLoading ] = useState<boolean>(true)
-
     console.log(auth)
 
     useEffect(() => {
         
-        if(! auth.user ){
-            
-            findUser(auth.jwt!)
-            .then( result => {
-                if( !result.error && result.user) {
-                    dispatch({
-                        type: "ADD_USER",
-                        payload: {
-                            jwt: auth.jwt,
-                            isLoggedIn: true,
-                            user: result.user
-                        }
-                    })
-                }
-            })
-            .finally( () => {
-                setLoading(false)
-            })
+        if(!auth.user && auth.jwt){
+            dispatch(findUser(auth.jwt))
         }
 
-    }, [auth, dispatch])
+    }, [auth.jwt, auth.user, dispatch])
 
-    if( loading ) {
+    if( auth.loading ) {
         return (
             <div>
                 loading
